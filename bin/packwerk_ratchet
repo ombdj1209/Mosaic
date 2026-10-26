@@ -1,0 +1,53 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+# Boundary ratchet: the number of recorded Packwerk violations (package_todo.yml
+# entries across all packs) may only go down. New violations fail CI; fixed ones
+# lower the baseline automatically when run with --update.
+#
+#   bin/packwerk_ratchet            # check
+#   bin/packwerk_ratchet --update   # after fixing violations, lower the baseline
+
+require "yaml"
+
+module PackwerkRatchet
+  BASELINE = ".packwerk_baseline"
+
+  module_function
+
+  # package_todo.yml shape: { "pack/name" => { "::Constant" => { "violations" => [...], "files" => [...] } } }
+  def count(root = Dir.pwd)
+    Dir.glob(File.join(root, "{.,packs/*}/package_todo.yml")).sum do |path|
+      (YAML.safe_load_file(path) || {}).values.sum do |constants|
+        constants.values.sum { |entry| Array(entry["violations"]).size * [Array(entry["files"]).size, 1].max }
+      end
+    end
+  end
+
+  def baseline(root = Dir.pwd)
+    path = File.join(root, BASELINE)
+    File.exist?(path) ? Integer(File.read(path).strip) : nil
+  end
+
+  def run(argv, root = Dir.pwd, out = $stdout)
+    current = count(root)
+    base = baseline(root)
+
+    if argv.include?("--update") || base.nil?
+      File.write(File.join(root, BASELINE), "#{current}\n")
+      out.puts "packwerk ratchet: baseline set to #{current}"
+      return 0
+    end
+
+    if current > base
+      out.puts "packwerk ratchet: FAIL, #{current} violations recorded, baseline is #{base}. Fix the new boundary violation instead of adding it to package_todo.yml."
+      1
+    else
+      File.write(File.join(root, BASELINE), "#{current}\n") if current < base
+      out.puts "packwerk ratchet: OK, #{current} violations (baseline #{base})"
+      0
+    end
+  end
+end
+
+exit PackwerkRatchet.run(ARGV) if $PROGRAM_NAME == __FILE__

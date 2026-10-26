@@ -1,0 +1,16 @@
+# Solid Queue recurring tasks (replaces sidekiq-cron).
+production: &production
+  relay_outbox:
+    class: Platform::OutboxRelayJob
+    queue: critical
+    schedule: every 2 seconds
+  verify_audit_chains:
+    class: Compliance::VerifyAuditChainsJob
+    queue: compliance
+    schedule: every day at 3am
+  clear_finished_jobs:
+    command: "SolidQueue::Job.clear_finished_in_batches(sleep_between_batches: 0.3)"
+    schedule: every hour at minute 12
+
+development:
+  <<: *production

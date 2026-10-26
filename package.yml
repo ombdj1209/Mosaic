@@ -1,0 +1,10 @@
+# Root package: config, lib/mosaic and the abstract base records.
+enforce_dependencies: true
+dependencies:
+  - packs/platform
+  - packs/identity
+  - packs/patients
+  - packs/scheduling
+  - packs/billing
+  - packs/compliance
+  - packs/ai_triage

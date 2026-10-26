@@ -1,0 +1,7 @@
+# Invoices issued from confirmed bookings, idempotent per booking.
+enforce_dependencies: true
+enforce_privacy: true
+public_path: app/public
+dependencies:
+  - .
+  - packs/platform

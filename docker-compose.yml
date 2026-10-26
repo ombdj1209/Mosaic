@@ -1,0 +1,23 @@
+# Local infrastructure: one Postgres (all six Mosaic databases + notifications)
+# and the notifications service. Run Mosaic itself with bin/setup.
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_PASSWORD: postgres
+    ports: ["5432:5432"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 2s
+      retries: 30
+
+  notifications:
+    build: services/notifications
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DB_HOST: postgres
+      RAILS_ENV: development
+    command: ["sh", "-c", "bin/rails db:prepare 2>/dev/null || bundle exec rails db:create db:migrate; bundle exec puma -p 4100 config.ru"]
+    ports: ["4100:4100"]

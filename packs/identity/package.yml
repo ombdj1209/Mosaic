@@ -1,0 +1,6 @@
+# Tenants and API keys. Lives in the control plane database; no personal data.
+enforce_dependencies: true
+enforce_privacy: true
+public_path: app/public
+dependencies:
+  - .

@@ -1,0 +1,48 @@
+# Kamal 2. App servers are stateless and can run in either region; personal data
+# stays in the regional databases referenced by DATABASE_URL_EU_DE / _EU_NL.
+service: mosaic
+image: ombdj1209/mosaic
+
+servers:
+  web:
+    - 10.0.1.10
+    - 10.0.1.11
+  job:
+    hosts:
+      - 10.0.1.20
+    cmd: bin/jobs
+
+proxy:
+  ssl: true
+  host: mosaic.example.eu
+  healthcheck:
+    path: /up
+
+registry:
+  server: ghcr.io
+  username: ombdj1209
+  password:
+    - KAMAL_REGISTRY_PASSWORD
+
+env:
+  secret:
+    - RAILS_MASTER_KEY
+    - DATABASE_URL_PRIMARY
+    - DATABASE_URL_EU_DE
+    - DATABASE_URL_EU_NL
+    - DATABASE_URL_QUEUE
+    - DATABASE_URL_CACHE
+    - DATABASE_URL_CABLE
+    - MOSAIC_KEK_CURRENT
+    - MOSAIC_BLIND_INDEX_KEY
+    - TRIAGE_LLM_API_KEY
+  clear:
+    SOLID_QUEUE_IN_PUMA: false
+    TRIAGE_LLM_URL: https://api.example-llm.eu/v1/chat/completions
+
+# Rails 8.1: Kamal reads secrets from encrypted credentials; see .kamal/secrets.example
+builder:
+  arch: amd64
+
+# Long jobs (imports, erasures) use Active Job Continuations, so the default
+# 30 s drain on deploy is enough: they checkpoint and resume on the new container.

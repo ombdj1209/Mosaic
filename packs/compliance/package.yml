@@ -1,0 +1,11 @@
+# Audit log, GDPR erasure, data residency guard.
+enforce_dependencies: true
+enforce_privacy: true
+public_path: app/public
+dependencies:
+  - .
+  - packs/platform
+  - packs/identity
+  - packs/patients
+  - packs/scheduling
+  - packs/ai_triage

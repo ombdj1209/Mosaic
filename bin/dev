@@ -1,0 +1,4 @@
+#!/usr/bin/env sh
+# Web + Solid Queue workers. Open http://kliniek-amstel.localhost:3000
+exec bin/rails server -b 0.0.0.0 "$@" &
+exec bin/jobs

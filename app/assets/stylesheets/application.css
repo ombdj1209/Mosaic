@@ -1,0 +1,74 @@
+/*
+  Mosaic staff calendar.
+  Pale sage paper and dark ink; teal is reserved for bookings and red for
+  conflicts, so the eye goes straight to the schedule. Atkinson Hyperlegible
+  was designed for low vision readers: a front desk screen is read in a hurry.
+*/
+:root {
+  --paper: #f4f6f5;
+  --surface: #ffffff;
+  --ink: #1e2a28;
+  --muted: #5e6e6a;
+  --rule: #d5dedb;
+  --booking: #0f6e64;
+  --booking-ink: #ffffff;
+  --conflict: #a8322d;
+  --focus: #1d4e89;
+  --font: "Atkinson Hyperlegible", system-ui, sans-serif;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--paper); color: var(--ink); font: 16px/1.5 var(--font); }
+.page { max-width: 1200px; margin: 0 auto; padding: 28px 24px 64px; }
+
+h1 { font-size: 30px; margin: 0; letter-spacing: -0.01em; }
+h2 { font-size: 18px; margin: 0; }
+.region { color: var(--muted); margin: 2px 0 0; }
+
+.masthead { display: flex; flex-wrap: wrap; gap: 20px; justify-content: space-between; align-items: flex-end;
+  padding-bottom: 18px; border-bottom: 2px solid var(--ink); }
+.day-nav { display: flex; align-items: baseline; gap: 18px; }
+.quiet-link { color: var(--muted); }
+
+.notice { margin: 16px 0 0; padding: 10px 14px; background: var(--surface); border-left: 4px solid var(--booking); }
+.notice-conflict { border-left-color: var(--conflict); }
+
+.calendar { margin: 28px 0 40px; }
+.hours, .lane { display: grid; grid-template-columns: 180px 1fr; gap: 12px; align-items: stretch; }
+.hour-track { display: grid; grid-template-columns: repeat(10, 1fr); color: var(--muted); font-size: 13px; }
+.hour-track span { border-left: 1px solid var(--rule); padding-left: 4px; }
+
+.lane { min-height: 64px; border-top: 1px solid var(--rule); }
+.lane-label { align-self: center; font-weight: 700; }
+.track {
+  display: grid; grid-template-columns: repeat(40, 1fr); gap: 0 2px; padding: 6px 0;
+  background-image: repeating-linear-gradient(to right, var(--rule) 0 1px, transparent 1px calc(100% / 10));
+}
+
+.booking {
+  grid-row: 1; position: relative; padding: 6px 8px; border-radius: 4px; min-width: 0;
+  background: var(--booking); color: var(--booking-ink); font-size: 14px; line-height: 1.25; overflow: hidden;
+}
+.booking-time { display: block; font-weight: 700; }
+.booking-patient { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.booking form { position: absolute; inset: 4px 4px auto auto; margin: 0; }
+.booking-cancel { opacity: 0; font-size: 12px; padding: 1px 6px; background: var(--surface); color: var(--conflict); border: 0; border-radius: 3px; cursor: pointer; }
+.booking:hover .booking-cancel, .booking-cancel:focus-visible { opacity: 1; }
+
+.empty { color: var(--muted); padding: 18px 0; }
+
+.book h2 { margin-bottom: 12px; }
+.booking-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; align-items: end; }
+.booking-form label { display: grid; gap: 4px; color: var(--muted); font-size: 14px; }
+select, input { font: inherit; color: var(--ink); padding: 8px 10px; border: 1px solid var(--rule); border-radius: 4px; background: var(--surface); }
+input[type="submit"] { background: var(--ink); color: var(--surface); border-color: var(--ink); cursor: pointer; font-weight: 700; }
+
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+
+@media (max-width: 760px) {
+  .hours, .lane { grid-template-columns: 1fr; }
+  .hours > span { display: none; }
+  .track { grid-template-columns: repeat(40, minmax(10px, 1fr)); overflow-x: auto; }
+}
+
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }

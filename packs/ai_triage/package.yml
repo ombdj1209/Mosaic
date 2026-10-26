@@ -1,0 +1,8 @@
+# LLM assisted triage of inbound patient messages with a decision log and human review.
+enforce_dependencies: true
+enforce_privacy: true
+public_path: app/public
+dependencies:
+  - .
+  - packs/platform
+  - packs/patients

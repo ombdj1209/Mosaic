@@ -1,0 +1,7 @@
+# The only pack that stores personal data. Everything is envelope encrypted per subject.
+enforce_dependencies: true
+enforce_privacy: true
+public_path: app/public
+dependencies:
+  - .
+  - packs/platform

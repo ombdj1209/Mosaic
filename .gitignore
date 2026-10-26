@@ -1,0 +1,9 @@
+/.bundle
+/log/*
+/tmp/*
+/storage/*
+/config/master.key
+/.kamal/secrets
+/db/*_schema.rb
+/public/assets
+.env

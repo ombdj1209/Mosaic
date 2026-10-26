@@ -1,0 +1,7 @@
+# Shared plumbing: current tenant, transactional outbox, idempotency keys, tenant aware jobs.
+enforce_dependencies: true
+enforce_privacy: true
+public_path: app/public
+dependencies:
+  - .
+  - packs/identity

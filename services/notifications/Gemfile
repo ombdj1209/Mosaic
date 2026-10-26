@@ -1,0 +1,6 @@
+source "https://rubygems.org"
+ruby file: "../../.ruby-version"
+
+gem "rails", "~> 8.1.0", require: %w[active_record/railtie action_controller/railtie]
+gem "pg", "~> 1.5"
+gem "puma", ">= 6.4"

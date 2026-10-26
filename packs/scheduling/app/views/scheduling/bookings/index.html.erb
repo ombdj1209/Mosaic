@@ -1,0 +1,58 @@
+<%= turbo_stream_from current_tenant.id, "bookings" %>
+
+<header class="masthead">
+  <div>
+    <h1><%= current_tenant.name %></h1>
+    <p class="region">Patient data stored in <%= region_label(current_tenant.region) %></p>
+  </div>
+  <nav class="day-nav" aria-label="Choose day">
+    <%= link_to "Previous day", bookings_path(day: @day - 1), class: "quiet-link" %>
+    <h2><%= l(@day, format: :long) %></h2>
+    <%= link_to "Next day", bookings_path(day: @day + 1), class: "quiet-link" %>
+  </nav>
+</header>
+
+<div id="notice" role="status"><% if notice %><p class="notice"><%= notice %></p><% end %></div>
+
+<section class="calendar" aria-label="Bookings by practitioner">
+  <div class="hours" aria-hidden="true">
+    <span></span>
+    <div class="hour-track">
+      <% track_hours.each do |h| %><span><%= format("%02d:00", h) %></span><% end %>
+    </div>
+  </div>
+
+  <% if @resources.empty? %>
+    <p class="empty">No practitioners or rooms yet. Run <code>bin/rails db:seed</code> to add a demo clinic.</p>
+  <% end %>
+
+  <% @resources.each do |resource| %>
+    <div class="lane">
+      <span class="lane-label"><%= resource.name %></span>
+      <div class="track" id="resource_<%= resource.id %>">
+        <% @bookings.select { |b| b.resource_id == resource.id }.each do |booking| %>
+          <%= render "scheduling/bookings/booking", booking:, names: @patient_names %>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+</section>
+
+<section class="book" aria-labelledby="book-title">
+  <h2 id="book-title">Book an appointment</h2>
+  <%= form_with scope: :booking, url: bookings_path, id: "booking_form", class: "booking-form" do |f| %>
+    <label>Practitioner or room
+      <%= f.select :resource_id, @resources.map { |r| [r.name, r.id] } %>
+    </label>
+    <label>Patient
+      <%= f.select :patient_id, Patients::API.directory %>
+    </label>
+    <label>Starts
+      <%= f.datetime_local_field :starts_at, value: (@day.to_time + 9.hours).strftime("%Y-%m-%dT%H:%M"), step: 900 %>
+    </label>
+    <label>Ends
+      <%= f.datetime_local_field :ends_at, value: (@day.to_time + 9.hours + 45.minutes).strftime("%Y-%m-%dT%H:%M"), step: 900 %>
+    </label>
+    <%= f.submit "Book appointment" %>
+  <% end %>
+</section>

@@ -1,0 +1,14 @@
+<%# The booking itself arrives through the model broadcast; this only reports the outcome. %>
+<% if @booking %>
+  <%= turbo_stream.update "notice" do %>
+    <p class="notice">Booked <%= @booking.starts_at.strftime("%H:%M") %> to <%= @booking.ends_at.strftime("%H:%M") %>.</p>
+  <% end %>
+<% elsif @error == :slot_taken %>
+  <%= turbo_stream.update "notice" do %>
+    <p class="notice notice-conflict">That time overlaps an existing appointment for this practitioner. Choose another time.</p>
+  <% end %>
+<% else %>
+  <%= turbo_stream.update "notice" do %>
+    <p class="notice notice-conflict">The appointment could not be booked: check that the end time is after the start time.</p>
+  <% end %>
+<% end %>

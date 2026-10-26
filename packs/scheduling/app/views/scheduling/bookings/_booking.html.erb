@@ -1,0 +1,8 @@
+<% names = local_assigns[:names] %>
+<div class="booking" id="<%= dom_id(booking) %>" style="<%= booking_grid_style(booking) %>"
+     title="<%= booking.starts_at.strftime("%H:%M") %> to <%= booking.ends_at.strftime("%H:%M") %>">
+  <span class="booking-time"><%= booking.starts_at.strftime("%H:%M") %></span>
+  <span class="booking-patient"><%= patient_name(booking, names) %></span>
+  <%= button_to "Cancel", booking_path(booking), method: :delete, class: "booking-cancel",
+        form: { data: { turbo_confirm: "Cancel this appointment?" } } %>
+</div>

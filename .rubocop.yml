@@ -1,0 +1,9 @@
+inherit_gem:
+  rubocop-rails-omakase: rubocop.yml
+
+AllCops:
+  Exclude:
+    - "db/*_schema.rb"
+    - "db/structure.sql"
+    - "vendor/**/*"
+    - "services/**/vendor/**/*"

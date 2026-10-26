@@ -1,0 +1,43 @@
+#!/usr/bin/env ruby
+# Idempotent: install gems, copy Solid Queue/Cache/Cable schemas from the
+# installed gems, prepare all six databases (control plane, two regional
+# shards, queue, cache, cable), seed, and start the app.
+require "fileutils"
+
+APP_ROOT = File.expand_path("..", __dir__)
+
+def system!(*args)
+  system(*args, exception: true)
+end
+
+FileUtils.chdir APP_ROOT do
+  puts "== Installing dependencies =="
+  system("bundle check") || system!("bundle install")
+
+  puts "\n== Solid schemas =="
+  {
+    "solid_queue" => "lib/generators/solid_queue/install/templates/db/queue_schema.rb",
+    "solid_cache" => "lib/generators/solid_cache/install/templates/db/cache_schema.rb",
+    "solid_cable" => "lib/generators/solid_cable/install/templates/db/cable_schema.rb"
+  }.each do |gem_name, template|
+    target = File.join("db", File.basename(template))
+    next if File.exist?(target)
+
+    source = File.join(`bundle exec gem contents #{gem_name} 2>/dev/null`.lines.first.to_s.split("/lib/").first.to_s, template)
+    source = File.join(Gem::Specification.find_by_name(gem_name).gem_dir, template) unless File.exist?(source)
+    FileUtils.cp(source, target)
+    puts "copied #{target}"
+  end
+
+  puts "\n== Preparing databases =="
+  system! "bin/rails db:prepare"
+  system! "bin/rails db:seed" unless ARGV.include?("--skip-seed")
+
+  puts "\n== Removing old logs and tempfiles =="
+  system! "bin/rails log:clear tmp:clear"
+
+  unless ARGV.include?("--skip-server")
+    puts "\n== Starting =="
+    exec "bin/dev"
+  end
+end

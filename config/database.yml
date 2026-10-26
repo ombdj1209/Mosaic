@@ -1,0 +1,89 @@
+# One control plane database (tenants, API keys, erasure ledger) and one data
+# database per region. A tenant's personal data lives only in its region's
+# shard: eu_de in Frankfurt, eu_nl in Amsterdam (see docs/adr/0003).
+#
+# Solid Queue, Solid Cache and Solid Cable get their own databases so job
+# churn never competes with OLTP traffic for autovacuum or connections.
+
+default: &default
+  adapter: postgresql
+  encoding: unicode
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS", 5) %>
+  host: <%= ENV.fetch("DB_HOST", "localhost") %>
+  username: <%= ENV.fetch("DB_USER", "postgres") %>
+  password: <%= ENV.fetch("DB_PASSWORD", "postgres") %>
+
+development:
+  primary:
+    <<: *default
+    database: mosaic_development
+  eu_de:
+    <<: *default
+    database: mosaic_development_eu_de
+    migrations_paths: db/shard_migrate
+  eu_nl:
+    <<: *default
+    database: mosaic_development_eu_nl
+    migrations_paths: db/shard_migrate
+  queue:
+    <<: *default
+    database: mosaic_development_queue
+    migrations_paths: db/queue_migrate
+  cache:
+    <<: *default
+    database: mosaic_development_cache
+    migrations_paths: db/cache_migrate
+  cable:
+    <<: *default
+    database: mosaic_development_cable
+    migrations_paths: db/cable_migrate
+
+test:
+  primary:
+    <<: *default
+    database: mosaic_test
+  eu_de:
+    <<: *default
+    database: mosaic_test_eu_de
+    migrations_paths: db/shard_migrate
+  eu_nl:
+    <<: *default
+    database: mosaic_test_eu_nl
+    migrations_paths: db/shard_migrate
+  queue:
+    <<: *default
+    database: mosaic_test_queue
+    migrations_paths: db/queue_migrate
+  cache:
+    <<: *default
+    database: mosaic_test_cache
+    migrations_paths: db/cache_migrate
+  cable:
+    <<: *default
+    database: mosaic_test_cable
+    migrations_paths: db/cable_migrate
+
+production:
+  primary:
+    <<: *default
+    url: <%= ENV["DATABASE_URL_PRIMARY"] %>
+  eu_de:
+    <<: *default
+    url: <%= ENV["DATABASE_URL_EU_DE"] %>   # managed Postgres in Frankfurt
+    migrations_paths: db/shard_migrate
+  eu_nl:
+    <<: *default
+    url: <%= ENV["DATABASE_URL_EU_NL"] %>   # managed Postgres in Amsterdam
+    migrations_paths: db/shard_migrate
+  queue:
+    <<: *default
+    url: <%= ENV["DATABASE_URL_QUEUE"] %>
+    migrations_paths: db/queue_migrate
+  cache:
+    <<: *default
+    url: <%= ENV["DATABASE_URL_CACHE"] %>
+    migrations_paths: db/cache_migrate
+  cable:
+    <<: *default
+    url: <%= ENV["DATABASE_URL_CABLE"] %>
+    migrations_paths: db/cable_migrate
